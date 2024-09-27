@@ -62,7 +62,15 @@ const Salon = ({ eventHallId }: EventHallProps) => {
         alt="Perde"
         className="items-center justify-center w-full"
       />
-      <div className="seat-container grid grid-cols-[repeat(auto-fill,minmax(3rem,1fr))] gap-2 my-10 items-center justify-center w-full">
+      <div 
+        className="seat-container grid gap-2 my-10 justify-center items-center justify-items-center" 
+        style={{
+          gridTemplateColumns: `repeat(${eh?.columns || 0}, minmax(3rem, 1fr))`,
+          justifyContent: 'center', 
+          justifyItems: 'center',   
+          alignItems: 'center',     
+        }}
+      >
         {seatingChart.map((row, rowIndex) => (
           row.map((seat, colIndex) => (
             seat ? (
