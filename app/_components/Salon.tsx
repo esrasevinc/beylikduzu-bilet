@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import screen from '@/app/images/perde.svg';
 import agent from '../api/agent';
 import { EventHall } from '../models/eventHall';
@@ -15,6 +16,13 @@ interface EventHallProps {
 const Salon = ({ eventHallId }: EventHallProps) => {
   const [eh, setEh] = useState<EventHall | null>(null);
   const [seats, setSeats] = useState<SeatModel[]>([]);
+  const [selectedSeat, setSelectedSeat] = useState<SeatModel | null>(null); 
+  const [isClient, setIsClient] = useState(false); 
+  const router = useRouter(); 
+
+  useEffect(() => {
+    setIsClient(true); 
+  }, []);
 
   useEffect(() => {
     const fetchEventHallDetails = async () => {
@@ -50,11 +58,32 @@ const Salon = ({ eventHallId }: EventHallProps) => {
 
   const seatingChart = createSeatingChart();
 
+  const handleSeatSelect = (seat: SeatModel) => {
+    setSelectedSeat(seat); 
+  };
+
+  const handleContinue = () => {
+    if (isClient) {
+      router.push('/form-page'); 
+    }
+  };
+
   return (
     <div className="py-12">
       {eh && (
         <div className="event-hall-details items-center justify-center">
           <h2 className="text-xl font-bold text-center">{eh.title}</h2>
+        </div>
+      )}
+      {selectedSeat && (
+        <div className="flex flex-col gap-2 text-base justify-center items-center mt-4">
+          <p>Seçilen Koltuk: {selectedSeat.label}</p>
+          <button 
+            className="px-4 py-2 bg-blue-500 text-white rounded" 
+            onClick={handleContinue}
+          >
+            Devam Et
+          </button>
         </div>
       )}
       <Image 
@@ -74,14 +103,17 @@ const Salon = ({ eventHallId }: EventHallProps) => {
         {seatingChart.map((row, rowIndex) => (
           row.map((seat, colIndex) => (
             seat ? (
-              <Seat key={`${rowIndex}-${colIndex}`} label={seat.label} />
+              <Seat 
+                key={`${rowIndex}-${colIndex}`} 
+                label={seat.label} 
+                onClick={() => handleSeatSelect(seat)} 
+              />
             ) : (
-              <div key={`${rowIndex}-${colIndex}`} className="w-12 h-16 bg-transparent" /> // Boş yer
+              <div key={`${rowIndex}-${colIndex}`} className="w-12 h-16 bg-transparent" /> 
             )
           ))
         ))}
       </div>
-      
     </div>
   );
 }
