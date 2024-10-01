@@ -1,6 +1,7 @@
 import axios, { AxiosResponse } from "axios";
 import { SeatModel } from "../models/seatModel";
 import { EventHall } from "../models/eventHall";
+import { Ticket } from "../models/ticket";
 
 axios.defaults.baseURL = 'http://localhost:5000/api';
 
@@ -21,10 +22,15 @@ const Seats = {
     details: (id: string) => requests.get<EventHall>(`/eventhalls/${id}`),
   }
 
+  const Tickets = {
+    buyTicket: (ticket: Ticket) => requests.post<Ticket>('/tickets',ticket)
+  }
+
 
 const agent = {
     Seats,
-    EventHalls
+    EventHalls,
+    Tickets
 }
 
 export default agent;
