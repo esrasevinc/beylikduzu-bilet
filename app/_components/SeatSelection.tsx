@@ -71,8 +71,8 @@ const SeatSelection = ({ activityId }: SeatSelectionProps) => {
 
   const handleContinue = () => {
     if (isClient && selectedSeat) {
-      router.push('/form-page') 
-     };
+      router.push(`/form-page?selectedSeatId=${selectedSeat.id}`); 
+    }
   }
 
   return (
