@@ -1,19 +1,21 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { act, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import screen from '@/app/images/perde.svg';
+import screen from '@/app/public/images/perde.svg';
 import agent from '../api/agent';
 import { EventHall } from '../models/eventHall';
 import { SeatModel } from '../models/seatModel';
 import Seat from './Seat';
+import { Activity } from '../models/activity';
 
-interface EventHallProps {
-  eventHallId: string;
+interface SeatSelectionProps {
+  activityId: string;
 }
 
-const Salon = ({ eventHallId }: EventHallProps) => {
+const SeatSelection = ({ activityId }: SeatSelectionProps) => {
+  const [activity, setActivity] = useState<Activity | null>(null);
   const [eh, setEh] = useState<EventHall | null>(null);
   const [seats, setSeats] = useState<SeatModel[]>([]);
   const [selectedSeat, setSelectedSeat] = useState<SeatModel | null>(null); 
@@ -25,20 +27,25 @@ const Salon = ({ eventHallId }: EventHallProps) => {
   }, []);
 
   useEffect(() => {
-    const fetchEventHallDetails = async () => {
+    const fetchSeats = async () => {
       try {
-        const ehDetails = await agent.EventHalls.details(eventHallId);
-        setEh(ehDetails);
-    
-        const seatList = await agent.Seats.list(eventHallId);
-        setSeats(seatList);
+        const activityDetails = await agent.Activities.details(activityId);
+        setActivity(activityDetails);
+  
+        if (activityDetails?.eventHallId) { 
+          const ehDetails = await agent.EventHalls.details(activityDetails.eventHallId);
+          setEh(ehDetails);
+  
+          const seatList = await agent.Seats.list(activityDetails.eventHallId);
+          setSeats(seatList);
+        }
       } catch (error) {
         console.error('Error fetching event hall details or seats:', error);
       }
     };
-
-    fetchEventHallDetails();
-  }, [eventHallId]);
+  
+    fetchSeats();
+  }, [activityId]);
 
   const createSeatingChart = (): (SeatModel | null)[][] => {
     if (!eh) return []; 
@@ -63,10 +70,10 @@ const Salon = ({ eventHallId }: EventHallProps) => {
   };
 
   const handleContinue = () => {
-    if (isClient) {
-      router.push('/form-page'); 
-    }
-  };
+    if (isClient && selectedSeat) {
+      router.push('/form-page') 
+     };
+  }
 
   return (
     <div className="py-12">
@@ -118,4 +125,4 @@ const Salon = ({ eventHallId }: EventHallProps) => {
   );
 }
 
-export default Salon;
+export default SeatSelection;
