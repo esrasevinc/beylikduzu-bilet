@@ -1,20 +1,17 @@
-"use client";
-
-import { useRouter } from "next/navigation";
-import { Button, Form, Input, FormProps } from 'antd';
+import { Button, Form, FormProps, Input } from "antd";
 import agent from "../api/agent";
+import { CustomerFormValues } from "../models/customer";
 
 interface CustomerFormProps {
   selectedSeatId: string; 
+  activityId: string;
 }
 
-const CustomerForm = ({ selectedSeatId }: CustomerFormProps) => {
-  const router = useRouter();
+const CustomerForm = ({ selectedSeatId, activityId }: CustomerFormProps) => {
   const [form] = Form.useForm();
 
-  const onFinish: FormProps<CustomerFormProps>["onFinish"] = async (values) => {
+  const onFinish: FormProps<CustomerFormValues>["onFinish"] = async (values) => {
     try {
-      // Create the customer first using the form values
       const customerResponse = await agent.Customers.create({
         name: values.name,
         TCNumber: values.TCNumber,
@@ -24,14 +21,18 @@ const CustomerForm = ({ selectedSeatId }: CustomerFormProps) => {
         birthDate: values.birthDate,
       });
 
-
-      const customerId = customerResponse.id; 
+      const customerId = customerResponse.id;
+      
+      if (!customerId) {
+        throw new Error('Customer ID not returned');
+      }
 
       await agent.Tickets.buyTicket({
         customerId: customerId,
-        seatId: selectedSeatId,
+        ticketSeatId: selectedSeatId as string,
+        activityId: activityId as string
       });
-      
+
     } catch (error) {
       console.error('Error creating ticket:', error);
     }
