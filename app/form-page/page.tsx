@@ -1,12 +1,17 @@
-import React from 'react'
-import CustomerForm from '../_components/CustomerForm'
+import React from 'react';
+import CustomerForm from '../_components/CustomerForm';
+import { useRouter } from 'next/router';
 
-const page = () => {
-  return (
-    <>
-        <CustomerForm />
-    </>
-  )
+const Page = () => {
+    const { query } = useRouter();
+    const activityId = typeof query.activityId === 'string' ? query.activityId : '';
+    const seatId = typeof query.seatId === 'string' ? query.seatId : '';
+
+    return (
+        <>
+            <CustomerForm selectedSeatId={seatId} activityId={activityId} />
+        </>
+    );
 }
 
-export default page
+export default Page;

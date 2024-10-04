@@ -3,6 +3,7 @@ import { SeatModel } from "../models/seatModel";
 import { EventHall } from "../models/eventHall";
 import { Ticket } from "../models/ticket";
 import { Activity } from "../models/activity";
+import { Customer } from "../models/customer";
 
 axios.defaults.baseURL = 'http://localhost:5000/api';
 
@@ -16,27 +17,33 @@ const requests = {
 }
 
 const Seats = {
-    list: (eventHallId: string) => requests.get<SeatModel[]>(`/seats/${eventHallId}`),
+    list: (eventHallId: string) => requests.get<SeatModel[]>(`/seats/${eventHallId}`)
   }
 
   const EventHalls = {
-    details: (id: string) => requests.get<EventHall>(`/eventhalls/${id}`),
+    details: (id: string) => requests.get<EventHall>(`/eventhalls/${id}`)
   }
+  
 
   const Tickets = {
     buyTicket: (ticket: Ticket) => requests.post<Ticket>('/tickets', ticket)
   }
 
   const Activities = {
-    details: (id: string) => requests.get<Activity>(`/activities/${id}`),
-}
+    details: (id: string) => requests.get<Activity>(`/activities/${id}`)
+  }
+
+  const Customers = {
+    create: (customer: Customer) => requests.post<Customer>('/customers', customer)
+  }
 
 
 const agent = {
     Seats,
     EventHalls,
     Tickets,
-    Activities
+    Activities,
+    Customers
 }
 
 export default agent;
