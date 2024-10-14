@@ -12,6 +12,7 @@ const CustomerForm = ({ selectedSeatId, activityId }: CustomerFormProps) => {
 
   const onFinish: FormProps<CustomerFormValues>["onFinish"] = async (values) => {
     try {
+      
       const customerResponse = await agent.Customers.create({
         name: values.name,
         TCNumber: values.TCNumber,
@@ -20,23 +21,24 @@ const CustomerForm = ({ selectedSeatId, activityId }: CustomerFormProps) => {
         address: values.address,
         birthDate: values.birthDate,
       });
-
+  
       const customerId = customerResponse.id;
       
       if (!customerId) {
         throw new Error('Customer ID not returned');
       }
-
+  
       await agent.Tickets.buyTicket({
         customerId: customerId,
-        ticketSeatId: selectedSeatId as string,
-        activityId: activityId as string
+        ticketSeatId: selectedSeatId,
+        activityId: activityId
       });
-
+  
     } catch (error) {
       console.error('Error creating ticket:', error);
     }
   };
+  
 
   return (
     <div className="w-full flex flex-col items-center justify-center max-w-7xl px-10 lg:px-20 mx-auto py-12">

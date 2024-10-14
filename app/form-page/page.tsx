@@ -1,11 +1,13 @@
+'use client';
+
 import React from 'react';
 import CustomerForm from '../_components/CustomerForm';
-import { useRouter } from 'next/router';
+import { useSearchParams } from 'next/navigation';
 
 const Page = () => {
-    const { query } = useRouter();
-    const activityId = typeof query.activityId === 'string' ? query.activityId : '';
-    const seatId = typeof query.seatId === 'string' ? query.seatId : '';
+    const searchParams = useSearchParams();
+    const activityId = searchParams.get('activityId') || '';
+    const seatId = searchParams.get('seatId') || '';
 
     return (
         <>

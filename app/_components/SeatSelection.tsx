@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
@@ -18,12 +18,13 @@ const SeatSelection = ({ activityId }: SeatSelectionProps) => {
   const [activity, setActivity] = useState<Activity | null>(null);
   const [eh, setEh] = useState<EventHall | null>(null);
   const [seats, setSeats] = useState<SeatModel[]>([]);
-  const [selectedSeat, setSelectedSeat] = useState<SeatModel | null>(null); 
-  const [isClient, setIsClient] = useState(false); 
-  const router = useRouter(); 
+  const [selectedSeat, setSelectedSeat] = useState<SeatModel | null>(null);
+  const [ticketSeatId, setTicketSeatId] = useState<string | null>(null); // ticketSeatId state
+  const [isClient, setIsClient] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
-    setIsClient(true); 
+    setIsClient(true);
   }, []);
 
   useEffect(() => {
@@ -31,11 +32,11 @@ const SeatSelection = ({ activityId }: SeatSelectionProps) => {
       try {
         const activityDetails = await agent.Activities.details(activityId);
         setActivity(activityDetails);
-  
-        if (activityDetails?.eventHallId) { 
+
+        if (activityDetails?.eventHallId) {
           const ehDetails = await agent.EventHalls.details(activityDetails.eventHallId);
           setEh(ehDetails);
-  
+
           const seatList = await agent.Seats.list(activityDetails.eventHallId);
           setSeats(seatList);
         }
@@ -43,20 +44,20 @@ const SeatSelection = ({ activityId }: SeatSelectionProps) => {
         console.error('Error fetching event hall details or seats:', error);
       }
     };
-  
+
     fetchSeats();
   }, [activityId]);
 
   const createSeatingChart = (): (SeatModel | null)[][] => {
-    if (!eh) return []; 
-    const seatingChart: (SeatModel | null)[][] = Array.from({ length: eh.rows }, () => 
+    if (!eh) return [];
+    const seatingChart: (SeatModel | null)[][] = Array.from({ length: eh.rows }, () =>
       Array.from({ length: eh.columns }, () => null)
     );
 
     seats.forEach(seat => {
       const { row, column, status } = seat;
       if (status === 'Koltuk' && row < eh.rows && column < eh.columns) {
-        seatingChart[row][column] = seat; 
+        seatingChart[row][column] = seat;
       }
     });
 
@@ -65,13 +66,32 @@ const SeatSelection = ({ activityId }: SeatSelectionProps) => {
 
   const seatingChart = createSeatingChart();
 
-  const handleSeatSelect = (seat: SeatModel) => {
-    setSelectedSeat(seat); 
+  const handleSeatSelect = async (seat: SeatModel) => {
+    setSelectedSeat(seat);
+
+    try {
+      const ticketSeatResponse = await agent.TicketSeats.create({
+        id: seat.id,
+        seatId: seat.id,
+        row: seat.row,
+        column: seat.column,
+        label: seat.label,
+        status: "Boş",
+        activityId: activityId,
+      });
+
+      console.log('Ticket seat created:', ticketSeatResponse);
+      const createdTicketSeatId = ticketSeatResponse.id;
+      setTicketSeatId(createdTicketSeatId); 
+
+    } catch (error) {
+      console.error('Error creating ticket seat:', error);
+    }
   };
 
   const handleContinue = () => {
-    if (isClient && selectedSeat) {
-      router.push(`/form-page?activityId=${activityId}&seatId=${selectedSeat.id}`);
+    if (isClient && selectedSeat && ticketSeatId) {  
+      router.push(`/form-page?activityId=${activityId}&seatId=${ticketSeatId}`);
     }
   }
 
@@ -102,9 +122,9 @@ const SeatSelection = ({ activityId }: SeatSelectionProps) => {
         className="seat-container grid gap-2 my-10 justify-center items-center justify-items-center" 
         style={{
           gridTemplateColumns: `repeat(${eh?.columns || 0}, minmax(3rem, 1fr))`,
-          justifyContent: 'center', 
-          justifyItems: 'center',   
-          alignItems: 'center',     
+          justifyContent: 'center',
+          justifyItems: 'center',
+          alignItems: 'center',
         }}
       >
         {seatingChart.map((row, rowIndex) => (
@@ -116,7 +136,7 @@ const SeatSelection = ({ activityId }: SeatSelectionProps) => {
                 onClick={() => handleSeatSelect(seat)} 
               />
             ) : (
-              <div key={`${rowIndex}-${colIndex}`} className="w-12 h-16 bg-transparent" /> 
+              <div key={`${rowIndex}-${colIndex}`} className="w-12 h-16 bg-transparent" />
             )
           ))
         ))}

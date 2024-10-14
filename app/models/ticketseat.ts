@@ -1,5 +1,6 @@
-export interface SeatModel {
+export interface TicketSeat {
     id: string;
+    seatId: string;
     activityId: string;
     label: string;
     row: number;
