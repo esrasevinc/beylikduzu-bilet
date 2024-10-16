@@ -19,7 +19,7 @@ const SeatSelection = ({ activityId }: SeatSelectionProps) => {
   const [eh, setEh] = useState<EventHall | null>(null);
   const [seats, setSeats] = useState<SeatModel[]>([]);
   const [selectedSeat, setSelectedSeat] = useState<SeatModel | null>(null);
-  const [ticketSeatId, setTicketSeatId] = useState<string | null>(null); // ticketSeatId state
+  const [ticketSeatId, setTicketSeatId] = useState<string | null>(null); 
   const [isClient, setIsClient] = useState(false);
   const router = useRouter();
 
@@ -96,23 +96,47 @@ const SeatSelection = ({ activityId }: SeatSelectionProps) => {
   }
 
   return (
-    <div className="py-12">
-      {eh && (
-        <div className="event-hall-details items-center justify-center">
-          <h2 className="text-xl font-bold text-center">{eh.title}</h2>
-        </div>
-      )}
+    <div className='flex flex-col w-full items-start'>
+      <div className='flex flex-row justify-between w-full items-center px-6'>
+    <div className='flex flex-row items-center justify-center pb-8 gap-4'>
+          <div className='w-16 h-16 rounded-full border-4 border-[#16a89d]/50 text-white flex items-center justify-center text-3xl font-bold'>1</div>
+          <div className='flex flex-col items-start justify-start text-white'>
+            <p className='font-semibold text-2xl'>Etkinlik Detayları</p>
+            <p>{activity?.name}</p>
+            <p>Etkinlik Süresi: {activity?.duration} dk</p>
+
+          </div>
+      </div>
+      <div className='flex flex-row items-center justify-center pb-8 gap-4'>
+          <div className='w-16 h-16 rounded-full border-4 border-[#16a89d]/50 text-white flex items-center justify-center text-3xl font-bold'>2</div>
+          <div className='flex flex-col items-start justify-start text-white'>
+            <p className='font-semibold text-2xl'>Koltuk Seçimi</p>
+            {selectedSeat &&
+            <p>Seçilen koltuk: {selectedSeat?.label}</p>}
+          </div>
+      </div>
+      <div className='flex flex-row items-center justify-center pb-8 gap-4'>
+          <div className='w-16 h-16 rounded-full border-4 border-[#16a89d]/50 text-white flex items-center justify-center text-3xl font-bold'>3</div>
+          <div className='flex flex-col items-start justify-start text-white'>
+            <p className='font-semibold text-2xl'>Kişisel Bilgiler</p>
+          </div>
+      </div>
+      </div>
+     <div className="p-10 rounded-3xl drop-shadow-xl bg-slate-50 text-slate-600 ">
+      <div className='flex flex-row w-full justify-between items-center'>
+      <h1 className='text-3xl items-start font-semibold'>Koltuk Seçimi</h1>
+      
       {selectedSeat && (
-        <div className="flex flex-col gap-2 text-base justify-center items-center mt-4">
-          <p>Seçilen Koltuk: {selectedSeat.label}</p>
+        <div className="flex text-base justify-center items-end">
           <button 
-            className="px-4 py-2 bg-blue-500 text-white rounded" 
+            className="px-4 py-2 bg-[#16a89d] text-white rounded-full text-xl hover:bg-opacity-75" 
             onClick={handleContinue}
           >
             Devam Et
           </button>
         </div>
       )}
+      </div>
       <Image 
         src={screen} 
         alt="Perde"
@@ -141,6 +165,7 @@ const SeatSelection = ({ activityId }: SeatSelectionProps) => {
           ))
         ))}
       </div>
+    </div>
     </div>
   );
 }
