@@ -122,9 +122,9 @@ const SeatSelection = ({ activityId }: SeatSelectionProps) => {
           </div>
       </div>
       </div>
-     <div className="p-10 rounded-3xl drop-shadow-xl bg-slate-50 text-slate-600 ">
+     <div className="p-10 rounded-3xl drop-shadow-xl bg-slate-50 text-black ">
       <div className='flex flex-row w-full justify-between items-center'>
-      <h1 className='text-3xl items-start font-semibold'>Koltuk Seçimi</h1>
+      <h1 className='text-3xl items-start font-bold'>Koltuk Seçimi</h1>
       
       {selectedSeat && (
         <div className="flex text-base justify-center items-end">
