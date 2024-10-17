@@ -7,7 +7,7 @@ import logo from "@/app/public/images/bb-logo.png";
 const Navbar = () => {
 
   return (
-    <header className="z-[1000] h-[80px] md:h-auto w-full fixed flex md:top-0 py-4 pl-16">
+    <header className="z-[1000] h-[80px] md:h-auto w-full fixed flex md:top-0 py-4 pl-16 bg-black/50">
       <div className="flex items-start w-full">
         <Link href='https://www.beylikduzu.istanbul/' target={"_blank"} >
         <Image 

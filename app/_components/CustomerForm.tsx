@@ -6,6 +6,13 @@ import { Activity } from "../models/activity";
 import { TicketSeat } from "../models/ticketseat";
 import jsPDF from "jspdf"; 
 import locale from 'antd/es/date-picker/locale/tr_TR';
+import Link from "next/link";
+import dayjs from "dayjs";
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 interface CustomerFormProps {
   activityId: string;
   selectedSeatId: string;
@@ -93,18 +100,20 @@ const CustomerForm = ({ activityId, selectedSeatId }: CustomerFormProps) => {
           <div className='flex flex-col items-start justify-start text-white'>
             <p className='font-semibold text-2xl'>Etkinlik Detayları</p>
             <p>{activity?.name}</p>
+            <p>{dayjs.utc((activity?.date)).tz('Europe/Istanbul').format('DD.MM.YYYY HH:mm')}</p>
+            <p>Etkinlik Yeri: {activity?.place.title!}</p>
             <p>Etkinlik Süresi: {activity?.duration!} dk</p>
           </div>
         </div>
         <div className='flex flex-row items-center justify-center pb-8 gap-4'>
-          <div className='w-16 h-16 rounded-full border-4 border-[#16a89d]/50 text-white flex items-center justify-center text-3xl font-bold'>2</div>
+          <Link className='w-16 h-16 rounded-full border-4 border-[#16a89d]/50 text-white flex items-center justify-center text-3xl font-bold' href='/'>2</Link>
           <div className='flex flex-col items-start justify-start text-white'>
             <p className='font-semibold text-2xl'>Koltuk Seçimi</p>
             {ticketSeat && <p>Seçilen Koltuk: {ticketSeat.label}</p>} 
           </div>
         </div>
         <div className='flex flex-row items-center justify-center pb-8 gap-4'>
-          <div className='w-16 h-16 rounded-full border-4 border-[#16a89d]/50 text-white flex items-center justify-center text-3xl font-bold'>3</div>
+          <div className='w-16 h-16 rounded-full border-4 border-transparent bg-[#16a89d]/50  text-white flex items-center justify-center text-3xl font-bold'>3</div>
           <div className='flex flex-col items-start justify-start text-white'>
             <p className='font-semibold text-2xl'>Kişisel Bilgiler</p>
           </div>
