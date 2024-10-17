@@ -1,3 +1,4 @@
+import { SeatProvider } from "./_components/SeatContext";
 import SeatSelection from "./_components/SeatSelection";
 
 export default function Home() {

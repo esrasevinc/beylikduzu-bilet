@@ -1,8 +1,10 @@
+// RootLayout.tsx
 import type { Metadata } from "next";
 import "./globals.css";
 import Footer from "./_components/Footer";
 import Navbar from "./_components/Navbar";
-import { Inter } from 'next/font/google'
+import { Inter } from 'next/font/google';
+import { SeatProvider } from './_components/SeatContext'; 
 
 const inter = Inter({
   subsets: ['latin'],
@@ -22,11 +24,11 @@ export default function RootLayout({
   return (
     <html lang="tr">
       <body className={`${inter.className} `}>
-        <div className="flex flex-col h-screen bg-gradient-to-b from-[#404040] to-[#181818]">
-          <Navbar />
-          <div className="flex flex-col flex-1 relative mt-[70px]">{children}</div>
-          <Footer />
-        </div>
+          <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#404040] to-[#181818]">
+            <Navbar />
+            <div className="flex flex-col flex-1 relative mt-[70px]">{children}</div>
+            <Footer />
+          </div>
       </body>
     </html>
   );

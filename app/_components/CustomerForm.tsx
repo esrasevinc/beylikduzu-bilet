@@ -1,18 +1,40 @@
-import { Button, Form, FormProps, Input } from "antd";
+import { Button, DatePicker, Form, FormProps, Input, Modal, QRCode } from "antd";
 import agent from "../api/agent";
 import { CustomerFormValues } from "../models/customer";
-
+import { useEffect, useState } from "react";
+import { Activity } from "../models/activity";
+import { TicketSeat } from "../models/ticketseat";
+import jsPDF from "jspdf"; 
+import locale from 'antd/es/date-picker/locale/tr_TR';
 interface CustomerFormProps {
-  selectedSeatId: string; 
   activityId: string;
+  selectedSeatId: string;
 }
 
-const CustomerForm = ({ selectedSeatId, activityId }: CustomerFormProps) => {
+const CustomerForm = ({ activityId, selectedSeatId }: CustomerFormProps) => {
   const [form] = Form.useForm();
+  const [activity, setActivity] = useState<Activity | null>(null);
+  const [ticketSeat, setTicketSeat] = useState<TicketSeat | null>(null);
+  const [ticketInfo, setTicketInfo] = useState<any | null>(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  useEffect(() => {
+    const fetchSeats = async () => {
+      try {
+        const activityDetails = await agent.Activities.details(activityId);
+        setActivity(activityDetails);
+        const ticketSeatDetails = await agent.TicketSeats.details(selectedSeatId);
+        setTicketSeat(ticketSeatDetails);
+      } catch (error) {
+        console.error('Error fetching event hall details:', error);
+      }
+    };
+
+    fetchSeats();
+  }, [activityId]);
 
   const onFinish: FormProps<CustomerFormValues>["onFinish"] = async (values) => {
     try {
-      
       const customerResponse = await agent.Customers.create({
         name: values.name,
         TCNumber: values.TCNumber,
@@ -27,78 +49,148 @@ const CustomerForm = ({ selectedSeatId, activityId }: CustomerFormProps) => {
       if (!customerId) {
         throw new Error('Customer ID not returned');
       }
-  
-      await agent.Tickets.buyTicket({
+
+      const ticketResponse = await agent.Tickets.buyTicket({
         customerId: customerId,
         ticketSeatId: selectedSeatId,
-        activityId: activityId
+        activityId: activityId,
       });
+
+      setTicketInfo({
+        ...values,
+        activityId,
+        activity,
+        ticketSeat,
+        ticketId: ticketResponse.id,
+      });
+
+      setIsModalVisible(true);
   
     } catch (error) {
       console.error('Error creating ticket:', error);
     }
   };
-  
+
+
+  const generatePDF = () => {
+    const doc = new jsPDF();
+
+    doc.text(`Ad Soyad: ${ticketInfo?.name}`, 10, 10);
+    doc.text(`Telefon: ${ticketInfo?.phone}`, 10, 20);
+    doc.text(`Etkinlik: ${ticketInfo?.activity.name}`, 10, 30);
+    doc.text(`Etkinlik Yeri: ${ticketInfo?.activity.place.title}`, 10, 40);
+    doc.text(`Koltuk No: ${ticketInfo?.ticketSeat.label}`, 10, 50);
+    doc.text(`Ticket ID: ${ticketInfo?.ticketId}`, 10, 60);
+
+    doc.save('ticket.pdf');
+  };
 
   return (
     <div className="w-full flex flex-col items-center justify-center max-w-7xl px-10 lg:px-20 mx-auto py-12">
-      <Form
-        layout='horizontal'
-        form={form}
-        onFinish={onFinish}
-        initialValues={{ layout: 'horizontal' }}
-        style={{ maxWidth: 800 }}
-        labelCol={{ span: 4 }}
-        wrapperCol={{ span: 20 }}
-      >
-        <Form.Item
-          label="İsim"
-          name="name"
-          rules={[{ required: true, message: 'Lütfen isminizi girin!' }]}
+      <div className='flex flex-row justify-between w-full items-center px-6'>
+      <div className='flex flex-row items-center justify-center pb-8 gap-4'>
+          <div className='w-16 h-16 rounded-full border-4 border-[#16a89d]/50 text-white flex items-center justify-center text-3xl font-bold'>1</div>
+          <div className='flex flex-col items-start justify-start text-white'>
+            <p className='font-semibold text-2xl'>Etkinlik Detayları</p>
+            <p>{activity?.name}</p>
+            <p>Etkinlik Süresi: {activity?.duration!} dk</p>
+          </div>
+        </div>
+        <div className='flex flex-row items-center justify-center pb-8 gap-4'>
+          <div className='w-16 h-16 rounded-full border-4 border-[#16a89d]/50 text-white flex items-center justify-center text-3xl font-bold'>2</div>
+          <div className='flex flex-col items-start justify-start text-white'>
+            <p className='font-semibold text-2xl'>Koltuk Seçimi</p>
+            {ticketSeat && <p>Seçilen Koltuk: {ticketSeat.label}</p>} 
+          </div>
+        </div>
+        <div className='flex flex-row items-center justify-center pb-8 gap-4'>
+          <div className='w-16 h-16 rounded-full border-4 border-[#16a89d]/50 text-white flex items-center justify-center text-3xl font-bold'>3</div>
+          <div className='flex flex-col items-start justify-start text-white'>
+            <p className='font-semibold text-2xl'>Kişisel Bilgiler</p>
+          </div>
+        </div>
+      </div>
+      <div className="p-10 rounded-3xl drop-shadow-xl bg-slate-50 text-black w-full text-black">
+        <Form
+          layout='horizontal'
+          form={form}
+          onFinish={onFinish}
+          initialValues={{ layout: 'horizontal' }}
+          style={{ maxWidth: 800 }}
+          labelCol={{ span: 4 }}
+          wrapperCol={{ span: 20 }}
         >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          label="TC Kimlik No"
-          name="TCNumber"
-          rules={[{ required: true, message: 'Lütfen TC Kimlik numaranızı girin!' }]}
+          <Form.Item
+            name="name"
+            label="Ad Soyad"
+            rules={[{ required: true, message: 'Ad Soyad gereklidir!' }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="TCNumber"
+            label="TC Kimlik No"
+            rules={[{ required: true, message: 'TC Kimlik No gereklidir!' }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="phone"
+            label="Telefon"
+            rules={[{ required: true, message: 'Telefon gereklidir!' }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="email"
+            label="E-posta"
+            rules={[{ required: true, message: 'E-posta gereklidir!' }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="address"
+            label="Adres"
+            rules={[{ required: true, message: 'Adres gereklidir!' }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item label="Doğum Tarihi" name={"birthDate"} rules={[{ required: true, message: "Bu alan boş bırakılamaz!" }]}>
+                        <DatePicker
+                            format="DD.MM.YYYY"
+                            placeholder='Tarih seçiniz'
+                            showNow={false}
+                            locale={locale}
+                        />
+                    </Form.Item>
+          <Form.Item wrapperCol={{ offset: 4, span: 20 }}>
+            <button className="px-4 py-2 bg-[#16a89d] text-white rounded-full text-xl hover:bg-opacity-75" type="submit">
+              Bilet Al
+            </button>
+          </Form.Item>
+        </Form>
+        <Modal
+          title="Biletiniz"
+          open={isModalVisible}
+          onCancel={() => setIsModalVisible(false)}
+          footer={[
+            <Button key="download" type="primary" onClick={generatePDF}>
+              PDF Olarak İndir
+            </Button>,
+          ]}
         >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          label="Telefon"
-          name="phone"
-          rules={[{ required: true, message: 'Lütfen telefon numaranızı girin!' }]}
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          label="Email"
-          name="email"
-          rules={[{ required: true, message: 'Lütfen email adresinizi girin!' }]}
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          label="Adres"
-          name="address"
-          rules={[{ required: true, message: 'Lütfen adresinizi girin!' }]}
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          label="Doğum Tarihi"
-          name="birthDate"
-          rules={[{ required: true, message: 'Lütfen doğum tarihinizi girin!' }]}
-        >
-          <Input type="date" />
-        </Form.Item>
-        <Form.Item wrapperCol={{ offset: 4, span: 20 }}>
-          <Button type="primary" htmlType="submit">
-            Bilet Oluştur
-          </Button>
-        </Form.Item>
-      </Form>
+          {ticketInfo && (
+            <div>
+              <p><strong>Ad Soyad:</strong> {ticketInfo.name}</p>
+              <p><strong>Telefon:</strong> {ticketInfo.phone}</p>
+              <p><strong>Etkinlik:</strong> {ticketInfo.activity.name}</p>
+              <p><strong>Etkinlik Yeri:</strong> {ticketInfo.activity.place.title}</p>
+              <p><strong>Koltuk No:</strong> {ticketInfo.ticketSeat.label}</p>
+              <QRCode value={`Ticket ID: ${ticketInfo.ticketId}`} size={200} />
+            </div>
+          )}
+        </Modal>
+      </div>
     </div>
   );
 };

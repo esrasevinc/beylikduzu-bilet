@@ -39,7 +39,9 @@ const Seats = {
   }
 
   const TicketSeats = {
-    create: (ticketSeat: TicketSeat) => requests.post<TicketSeat>('/ticketseats', ticketSeat)
+    create: (ticketSeat: TicketSeat) => requests.post<TicketSeat>('/ticketseats', ticketSeat),
+    list: (activityId: string) => requests.get<TicketSeat[]>(`/ticketseats/activity/${activityId}`),
+    details: (id: string) => requests.get<TicketSeat>(`/ticketseats/${id}`)
   }
 
 

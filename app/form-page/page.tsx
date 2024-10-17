@@ -7,11 +7,11 @@ import { useSearchParams } from 'next/navigation';
 const Page = () => {
     const searchParams = useSearchParams();
     const activityId = searchParams.get('activityId') || '';
-    const seatId = searchParams.get('seatId') || '';
+    const selectedSeatId = searchParams.get('selectedSeatId') || '';
 
     return (
         <>
-            <CustomerForm selectedSeatId={seatId} activityId={activityId} />
+            <CustomerForm activityId={activityId} selectedSeatId={selectedSeatId} />
         </>
     );
 }
