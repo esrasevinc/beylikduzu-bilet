@@ -82,14 +82,23 @@ const CustomerForm = ({ activityId, selectedSeatId }: CustomerFormProps) => {
   const generatePDF = () => {
     const doc = new jsPDF();
 
-    doc.text(`Ad Soyad: ${ticketInfo?.name}`, 10, 10);
-    doc.text(`Telefon: ${ticketInfo?.phone}`, 10, 20);
-    doc.text(`Etkinlik: ${ticketInfo?.activity.name}`, 10, 30);
-    doc.text(`Etkinlik Yeri: ${ticketInfo?.activity.place.title}`, 10, 40);
-    doc.text(`Koltuk No: ${ticketInfo?.ticketSeat.label}`, 10, 50);
-    doc.text(`Ticket ID: ${ticketInfo?.ticketId}`, 10, 60);
+    doc.text("Bilet Detayları", 20, 20);
 
-    doc.save('ticket.pdf');
+    const qrCodeCanvas = document.querySelector("canvas") as HTMLCanvasElement;
+    const qrCodeURL = qrCodeCanvas.toDataURL("image/png");
+    doc.addImage(qrCodeURL, "PNG", 150, 10, 40, 40); 
+
+    doc.setFontSize(12);
+  
+    doc.text(`Ad Soyad: ${ticketInfo?.name}`, 20, 50);
+    doc.text(`Telefon: ${ticketInfo?.phone}`, 20, 60);
+    doc.text(`Telefon: ${ticketInfo?.email}`, 20, 70);
+    doc.text(`Etkinlik: ${ticketInfo?.activity.name}`, 20, 80);
+    doc.text(`Etkinlik Yeri: ${ticketInfo?.activity.place.title}`, 20, 90);
+    doc.text(`Koltuk No: ${ticketInfo?.ticketSeat.label}`, 20, 100);
+  
+
+    doc.save(`bilet_${ticketInfo.ticketId}.pdf`);
   };
 
   return (
