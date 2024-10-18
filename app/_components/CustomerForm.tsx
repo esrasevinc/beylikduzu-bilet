@@ -10,6 +10,7 @@ import Link from "next/link";
 import dayjs from "dayjs";
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import router from "next/router";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -76,6 +77,11 @@ const CustomerForm = ({ activityId, selectedSeatId }: CustomerFormProps) => {
     } catch (error) {
       console.error('Error creating ticket:', error);
     }
+  };
+
+  const handleModalClose = () => {
+    setIsModalVisible(false);
+    router.push('/'); 
   };
 
 
@@ -190,7 +196,7 @@ const CustomerForm = ({ activityId, selectedSeatId }: CustomerFormProps) => {
         <Modal
           title="Biletiniz"
           open={isModalVisible}
-          onCancel={() => setIsModalVisible(false)}
+          onCancel={handleModalClose} 
           footer={[
             <Button key="download" type="primary" onClick={generatePDF}>
               PDF Olarak İndir
