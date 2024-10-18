@@ -138,9 +138,11 @@ const SeatSelection = ({ activityId }: SeatSelectionProps) => {
             row.map((seat, colIndex) => (
               seat ? (
                 <Seat 
+                  status={seat.status}
                   key={`${rowIndex}-${colIndex}`} 
                   label={seat.label} 
                   onClick={() => handleSeatSelect(seat)} 
+                  isSelected={seat.id === selectedSeat?.id}
                 />
               ) : (
                 <div key={`${rowIndex}-${colIndex}`} className="w-12 h-16 bg-transparent" />
