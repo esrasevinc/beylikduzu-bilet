@@ -126,17 +126,18 @@ const SeatSelection = ({ activityId }: SeatSelectionProps) => {
           className="items-center justify-center w-full"
         />
         <div 
-          className="seat-container grid gap-2 my-10 justify-center items-center justify-items-center" 
+          className="seat-container grid  my-10 justify-center items-center justify-between" 
           style={{
             gridTemplateColumns: `repeat(${activity?.eventHall.columns! || 0}, minmax(3rem, 1fr))`,
             justifyContent: 'center',
             justifyItems: 'center',
             alignItems: 'center',
+            gap: '0.1rem'
           }}
         >
           {seatingChart.map((row, rowIndex) => (
             row.map((seat, colIndex) => (
-              seat ? (
+              seat && (
                 <Seat 
                   status={seat.status}
                   key={`${rowIndex}-${colIndex}`} 
@@ -144,11 +145,23 @@ const SeatSelection = ({ activityId }: SeatSelectionProps) => {
                   onClick={() => handleSeatSelect(seat)} 
                   isSelected={seat.id === selectedSeat?.id}
                 />
-              ) : (
-                <div key={`${rowIndex}-${colIndex}`} className="w-12 h-16 bg-transparent" />
-              )
+              ) 
             ))
           ))}
+        </div>
+        <div className='seat-info flex flex-row items-center justify-center gap-12 w-full mt-20'>
+            <div className='flex flex-row items-center justify-center gap-2'>
+                <div className='rounded-t-lg rounded-b-full h-12 w-8 shadow-md flex justify-center items-center bg-red-200'></div>
+                <p>Dolu Koltuklar</p>
+            </div>
+            <div className='flex flex-row items-center justify-center gap-2'>
+                <div className='rounded-t-lg rounded-b-full h-12 w-8 shadow-md flex justify-center items-center bg-gray-200'></div>
+                <p>Boş Koltuklar</p>
+            </div>
+            <div className='flex flex-row items-center justify-center gap-2'>
+                <div className='rounded-t-lg rounded-b-full h-12 w-8 shadow-md flex justify-center items-center bg-green-200'></div>
+                <p>Seçiminiz</p>
+            </div>
         </div>
       </div>
     </div>

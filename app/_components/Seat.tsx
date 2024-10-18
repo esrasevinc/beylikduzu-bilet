@@ -10,14 +10,14 @@ interface SeatProps {
 const Seat = ({ label, status, onClick, isSelected }: SeatProps) => {
 
   const backgroundColor = isSelected
-    ? 'bg-blue-200' 
-    : status === 'Dolu'
     ? 'bg-green-200' 
+    : status === 'Dolu'
+    ? 'bg-red-200' 
     : 'bg-gray-200'; 
 
   return (
     <div 
-      className={`seat cursor-pointer rounded-t-lg rounded-b-full h-16 w-12 shadow-md flex justify-center items-center ${backgroundColor}`}
+      className={`seat cursor-pointer rounded-t-lg rounded-b-full h-14 w-10 shadow-md flex justify-center items-center p-0 m-0 ${backgroundColor}`}
       onClick={status === 'Dolu' ? undefined : onClick}
       style={{ cursor: status === 'Dolu' ? 'auto' : 'pointer' }}
     >
